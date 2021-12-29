@@ -11,7 +11,8 @@ I may need to change how
 
 
 
-Surprisingly I needed to include core.lisp?
+Surprisingly I needed to include core.lisp? and the others. Huh
+`--file=core.lisp` seems to be working for js_of_ocaml. Thats neat.
 
 philip@philip-XPS-13-7390-2-in-1:~/Documents/ocaml/bapjs2$ bap show-lisp foo --primus-lisp-load=mytest
 foo:
@@ -24,7 +25,10 @@ foo:
 So I don't have bil, etc. 
 But I wonder if this is enough to get custom core theory intepretations working.
 
-Error.stackTraceLimit = Infinity;
+Stack overflow: add this to the top of the javascript file to get full stack trace
+
+`Error.stackTraceLimit = Infinity;`
+
 
 Stack size 1130 worlks
 
@@ -42,7 +46,20 @@ Copy and paste the appropriate promises.
 
 What if I could stub out Dynlink and just statically link in the plugins I want.
 
-On bap 2.3.0 I don't run into stack overflow errors. Hypothesis: The change to a 
+On bap 2.3.0 I don't run into stack overflow errors. Hypothesis: The change to th KB monad going to CPS style is really hurting without tail call elimination. https://github.com/BinaryAnalysisPlatform/bap/pull/1361
 
 I tried using closure compiler and babel with tail call elimination plugin. Both actually screwed up my code.
-# bap-primus-js
+
+Tried different optimizations and flags for jsoo. diable inline did nothing
+
+Not clear the closure compiler even makes for smaller a.js that just turning off pretty.
+
+
+Options:
+- Use bap 2.3.0
+- Use modified 2.4.0 that either trampolines the KB monad or returns to the 2.3.0 formulation of the monad
+
+ when stack size is too small, you can get it to still work with
+`/bin/bash -c "ulimit -s 65500; exec node --stack-size=65500 a.js"`
+
+
