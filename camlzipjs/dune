@@ -1,0 +1,6 @@
+(executable
+(name main)
+(modes byte js)
+(libraries zip)
+(js_of_ocaml (javascript_files helpers.js))
+)

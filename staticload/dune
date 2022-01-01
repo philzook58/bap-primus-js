@@ -1,0 +1,23 @@
+(executable
+(name main)
+(modes byte js)
+(flags -linkall -g)
+; with dune build main.bc.js --release
+; gets us to the Sys flushed error.
+(js_of_ocaml (flags --toplevel --dynlink +toplevel.js +dynlink.js --disable inline --pretty --source-map-inline
+--file /home/philip/.opam/bapjs/lib/bap/bil.plugin
+--file /home/philip/.opam/bapjs/lib/bap/primus_lisp.plugin
+--file /home/philip/Documents/ocaml/bapjs2/staticload/test.lisp
+--file /home/philip/.opam/bapjs/share/bap/primus/lisp/core.lisp
+--file /home/philip/.opam/bapjs/share/bap/primus/lisp/init.lisp
+--file /home/philip/.opam/bapjs/share/bap/primus/lisp/memory.lisp
+--file /home/philip/.opam/bapjs/share/bap/primus/lisp/pointers.lisp
+)
+(javascript_files helpers.js)
+)
+(libraries bap zarith_stubs_js 
+; comment out for main.bc build
+js_of_ocaml-toplevel js_of_ocaml-ppx
+)
+(preprocess (pps js_of_ocaml-ppx))
+)

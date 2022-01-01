@@ -1,0 +1,74 @@
+diff --git a/lib/knowledge/.merlin b/lib/knowledge/.merlin
+deleted file mode 100644
+index a5138a1..0000000
+--- a/lib/knowledge/.merlin
++++ /dev/null
+@@ -1,2 +0,0 @@
+-REC
+-B ../../_build/lib/knowledge
+diff --git a/lib/knowledge/bap_knowledge.ml b/lib/knowledge/bap_knowledge.ml
+index c76ce28..f277356 100644
+--- a/lib/knowledge/bap_knowledge.ml
++++ b/lib/knowledge/bap_knowledge.ml
+@@ -2030,25 +2030,32 @@ module Knowledge = struct
+     context = Dict.empty;
+   }
+ 
++  type 'a thunk =
++      | Fin of 'a
++      | TailCall of (unit -> 'a thunk)
++  
++  let rec trampoline r = match r with
++      | Fin a -> a
++      | TailCall f -> trampoline (f ())
+ 
+   type 'a knowledge = {
+-    run : 'r. reject:(conflict -> 'r) -> accept:('a -> state -> 'r) -> state -> 'r
++    run : 'r. reject:(conflict -> 'r) -> accept:('a -> state -> 'r thunk) -> state -> 'r thunk
+   }
+ 
+   module Knowledge = struct
+     type 'a t = 'a knowledge
+     type _ error = conflict
+-    let fail p : 'a t = {run = fun ~reject ~accept:_ _ -> reject p}
++    let fail p : 'a t = {run = fun ~reject ~accept:_ _ -> Fin (reject p)}
+     let catch x err = {
+       run = fun ~reject ~accept s -> x.run s
+           ~accept
+-          ~reject:(fun p -> (err p).run ~reject ~accept s)
++          ~reject:(fun p -> trampoline ((err p).run ~reject ~accept s))
+     }
+ 
+     include Monad.Make(struct
+         type 'a t = 'a knowledge
+         let return x : 'a t = {
+-          run = fun ~reject:_ ~accept s -> accept x s
++          run = fun ~reject:_ ~accept s -> TailCall (fun () -> accept x s)
+         }
+ 
+         let bind : 'a t -> ('a -> 'b t) -> 'b t = fun x f -> {
+@@ -2965,9 +2972,9 @@ module Knowledge = struct
+     | None -> Value.empty cls
+     | Some x -> Value.create cls x
+ 
+-  let run cls obj s = (obj >>= get_value cls).run s
++  let run cls obj s = trampoline @@ (obj >>= get_value cls).run s
+       ~reject:(fun err -> Error err)
+-      ~accept:(fun x s -> Ok (x,s))
++      ~accept:(fun x s -> Fin (Ok (x,s)))
+ 
+   let pp_fullname ~package ppf {package=p; name} =
+     if String.equal package p
+diff --git a/oasis/elf-loader b/oasis/elf-loader
+index 3e73e51..b1bf032 100644
+--- a/oasis/elf-loader
++++ b/oasis/elf-loader
+@@ -7,7 +7,7 @@ Library elf
+   Path:          lib/bap_elf
+   Build$:        flag(everything) || flag(elf_loader)
+   FindlibName:   bap-elf
+-  BuildDepends:  bitstring, bitstring.ppx, regular, core_kernel, ppx_bap
++  BuildDepends:  bitstring, ppx_bitstring, regular, core_kernel, ppx_bap
+   Modules: Bap_elf
+   InternalModules:
+                  Elf_parse,

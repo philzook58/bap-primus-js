@@ -1,0 +1,43 @@
+<html>
+    <!-- syntax highlighting 
+    <link rel="stylesheet"
+      href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/default.min.css">
+     <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script> 
+    <script src="highlight.min.js"></script> -->
+
+
+    <script src="_build/default/main.bc.js"></script> 
+    <script>
+        function run_code(){
+          let code = document.getElementById("code");
+          console.log(code.value);
+          let res = evaluator.execute(String(code.value));
+          console.log(res);
+          let output = document.getElementById("output");
+          output.innerHTML += ">>" + String(code.value) + "\n";
+          output.innerHTML += res + "\n";
+        }
+        function clear_output(){
+            let output = document.getElementById("output");
+            output.innerHTML = "";
+        }
+       /* window.onload = function () {
+            // first, find all the div.code blocks
+            let el = document.getElementById("code");
+            // then highlight each
+            hljs.highlightElement(el);
+            
+        } */
+    </script>
+    <body>
+<textarea rows="20" style="width:100%" id="code">let () = print_endline "hello world";;
+3 + 4;;</textarea>
+<button onclick="run_code()"> Run </button>
+<button onclick="clear_output()"> Clear </button>
+<br>
+<code id="output" style="white-space:pre-wrap"> 
+</code>
+
+
+    </body>
+</html>

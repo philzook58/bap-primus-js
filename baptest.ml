@@ -85,7 +85,7 @@ module Semantics = struct
         comment "translates instruction operands to lisp arguments"
       end);
     KB.promise Lisp.Semantics.args @@ fun this ->
-    (* let*? insn = KB.collect Insn.slot this in *)
+    let*? insn = KB.collect Insn.slot this in
     Theory.current >>= fun theory ->
     Theory.Label.target this >>= fun target ->
     args_of_ops theory target insn >>| Option.some

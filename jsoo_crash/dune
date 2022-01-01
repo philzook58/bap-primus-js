@@ -1,0 +1,7 @@
+(executable
+ (name main)
+ (modes byte js)
+ (js_of_ocaml (flags  --pretty
+ --file /home/philip/Documents/ocaml/bapjs2/jsoo_crash/mytest.txt ;:/custom-folder/
+ ))
+)
